@@ -1,1 +1,0 @@
-/usr/bin/g++ -g "CMakeFiles/Genetic-Kingdom.dir/src/main.cpp.o" -o Genetic-Kingdom   -L/home/guillermo/SFML-3.0.0/lib  -Wl,-rpath,/home/guillermo/SFML-3.0.0/lib -lsfml-graphics -lsfml-window -lsfml-system 

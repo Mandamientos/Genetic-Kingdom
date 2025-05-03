@@ -1,8 +1,0 @@
-[
-{
-  "directory": "/home/guillermo/Desktop/Genetic-Kingdom/build",
-  "command": "/usr/bin/g++  -I/home/guillermo/SFML-3.0.0/include -g -std=gnu++17 -o CMakeFiles/Genetic-Kingdom.dir/src/main.cpp.o -c /home/guillermo/Desktop/Genetic-Kingdom/src/main.cpp",
-  "file": "/home/guillermo/Desktop/Genetic-Kingdom/src/main.cpp",
-  "output": "CMakeFiles/Genetic-Kingdom.dir/src/main.cpp.o"
-}
-]
