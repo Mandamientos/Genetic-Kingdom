@@ -1,7 +1,9 @@
 #pragma once
 #include "tilemap.hpp"
 #include "gameState.hpp"
+#include "animateSprite.hpp"
 #include "gameStateManager.hpp"
+#include "player.hpp"
 
 class playState : public gameState {
     public:
@@ -12,5 +14,8 @@ class playState : public gameState {
     
     private:
         gameStateManager& manager;
+        Player player;
         TileMap map;
+        sf::Texture playerGoldTexture;
+        animateSprite goldAnimated;
 };

@@ -14,6 +14,8 @@ set(SOURCES
     src/states/mainMenu/mainMenu.cpp
     src/states/gameState/playState.cpp
     src/states/gameState/map/tilemap.cpp
+    src/states/gameState/misc/player.cpp
+    src/states/gameState/misc/animateSprite.cpp
 )
 
 set(HEADERS
@@ -22,6 +24,8 @@ set(HEADERS
     src/states/mainMenu/mainMenu.hpp
     src/states/gameState/playState.hpp
     src/states/gameState/map/tilemap.hpp
+    src/states/gameState/misc/player.hpp
+    src/states/gameState/misc/animateSprite.hpp
 )
 
 include_directories(
@@ -30,6 +34,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/src/states/mainMenu
     ${PROJECT_SOURCE_DIR}/src/states/gameState
     ${PROJECT_SOURCE_DIR}/src/states/gameState/map
+    ${PROJECT_SOURCE_DIR}/src/states/gameState/misc
 )
 
 file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
