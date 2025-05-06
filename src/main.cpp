@@ -1,18 +1,28 @@
 #include <SFML/Graphics.hpp>
+#include "gameStateManager.hpp"
+#include "mainMenu.hpp"
 
 int main() {
-    sf::Vector2u windowSize(800, 600);
-    
-    sf::RenderWindow window(sf::VideoMode(windowSize), "SFML Window");
+    sf::RenderWindow window(sf::VideoMode({800, 600}), "Genetic Kingdom");
+
+    gameStateManager stateManager;
+    stateManager.pushState(std::make_unique<mainMenu>(stateManager));
 
     while (window.isOpen()) {
         while (auto event = window.pollEvent()) {
-            if (event->is<sf::Event::Closed>()) {
-                window.close();
+            if(stateManager.getCurrentState()) {
+                stateManager.getCurrentState()->handleEvent(window, *event);
             }
         }
 
+        if(stateManager.getCurrentState()) {
+            stateManager.getCurrentState()->update(window);
+        }
         window.clear();
+
+        if(stateManager.getCurrentState()) {
+            stateManager.getCurrentState()->render(window);
+        }
         window.display();
     }
 
