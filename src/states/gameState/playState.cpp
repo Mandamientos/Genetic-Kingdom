@@ -7,6 +7,7 @@
 playState::playState(gameStateManager& manager) : manager(manager), map(26, 19) {
     map.setStart(0, 0);
     map.setGoal(25, 9);
+    
 
     srand(static_cast<unsigned>(time(nullptr)));
 
@@ -31,12 +32,6 @@ playState::playState(gameStateManager& manager) : manager(manager), map(26, 19) 
     } else {
         goldAnimated.setTexture(playerGoldTexture, 16, 16, 15, 0.1f);
     }
-
-    wavePath = {
-        {1, 0}, {2, 0}, {3, 0}, {4, 0}, {5, 0},
-        {6, 0}, {7, 1}, {8, 2}, {9, 3}, {10, 4},
-        {11, 5}, {12, 6}, {13, 7}, {14, 8}, {15, 9}
-    };
 }
 
 void playState::handleEvent(sf::RenderWindow& window, sf::Event& event) {
@@ -47,6 +42,25 @@ void playState::handleEvent(sf::RenderWindow& window, sf::Event& event) {
 
 void playState::update(sf::RenderWindow& window) {
     static sf::Clock clock;
+
+
+    if (!pathPrinted) {
+        path = pathfinder.findPath(map, map.getStart(), map.getGoal()); 
+        
+        std::cout << "Ruta encontrada:\n";
+        for (const auto& pos : path) {
+            std::cout << "(" << pos.first << ", " << pos.second << ")\n";
+        }
+        wavePath.clear();
+        for (const auto& p : path) {
+            wavePath.push_back(sf::Vector2i(p.first, p.second));
+        }
+    
+        pathPrinted = true;
+    }
+    
+    
+
     float deltaTime = clock.restart().asSeconds();
 
     goldAnimated.update(deltaTime);
@@ -80,6 +94,7 @@ void playState::update(sf::RenderWindow& window) {
     //    testWaveClock.restart();
     //}
 }
+
 
 void playState::render(sf::RenderWindow& window) {
     window.clear(sf::Color(0x57, 0x80, 0xD3));

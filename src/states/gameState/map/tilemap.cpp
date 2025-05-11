@@ -27,6 +27,10 @@ void TileMap::setGoal(int x, int y) {
     }
 }
 
+void TileMap::placeTower(int x, int y) {
+    grid[y][x].type = TileType::TOWER;
+}
+
 const std::vector<std::vector<tile>>& TileMap::getGrid() {
     return grid;
 }

@@ -16,6 +16,10 @@ struct tile
     int x, y;
     TileType type;
     bool isWalkable;
+    int G = 0;
+    int H = 0;
+    int F() const {return G+H;}
+    std::pair<int, int> parent = {-1, -1};
 
     tile(int x, int y, TileType type = TileType::EMPTY)
         : x(x), y(y), type(type) {

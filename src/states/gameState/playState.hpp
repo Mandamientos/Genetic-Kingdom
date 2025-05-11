@@ -5,6 +5,8 @@
 #include "gameStateManager.hpp"
 #include "player.hpp"
 #include "enemies/EnemyManager.hpp"
+#include "aStar.hpp" 
+#include <vector>
 
 class playState : public gameState {
 public:
@@ -21,7 +23,9 @@ private:
     animateSprite goldAnimated;
     EnemyManager enemyManager;
     std::vector<sf::Vector2i> wavePath;
-
+    AStarPathfinder pathfinder;
+    std::vector<std::pair<int, int>> path;
+    bool pathPrinted = false;
     bool waveStarted = false;
     int currentWave = 0;
     

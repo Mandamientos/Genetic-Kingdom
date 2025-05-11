@@ -16,12 +16,14 @@ set(SOURCES
     src/states/gameState/map/tilemap.cpp
     src/states/gameState/misc/player.cpp
     src/states/gameState/misc/animateSprite.cpp
+
     src/states/gameState/enemies/Enemy.cpp
     src/states/gameState/enemies/Ogre.cpp
     src/states/gameState/enemies/EnemyManager.cpp
     src/states/gameState/enemies/DarkElf.cpp
     src/states/gameState/enemies/Harpy.cpp
     src/states/gameState/enemies/Mercenary.cpp
+    src/states/gameState/map/aStar.cpp 
 )
 
 set(HEADERS
@@ -38,6 +40,7 @@ set(HEADERS
     src/states/gameState/enemies/DarkElf.hpp
     src/states/gameState/enemies/Harpy.hpp
     src/states/gameState/enemies/Mercenary.hpp
+    src/states/gameState/map/aStar.hpp
 )
 
 include_directories(
