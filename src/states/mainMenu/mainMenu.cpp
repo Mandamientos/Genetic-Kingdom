@@ -2,8 +2,12 @@
 #include "playState.hpp"
 #include <SFML/Window.hpp>
 #include <iostream>
+#include <ctime>
+#include <cstdlib>
 
 mainMenu::mainMenu(gameStateManager& manager) : manager(manager), playText(font), quitText(font) {
+    srand(static_cast<unsigned>(time(nullptr)));
+
     if(!font.openFromFile("assets/fonts/PERRYGOT.TTF")) {
         std::cerr << "Error loading font" << std::endl;
     }

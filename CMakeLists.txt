@@ -16,6 +16,12 @@ set(SOURCES
     src/states/gameState/map/tilemap.cpp
     src/states/gameState/misc/player.cpp
     src/states/gameState/misc/animateSprite.cpp
+    src/states/gameState/enemies/Enemy.cpp
+    src/states/gameState/enemies/Ogre.cpp
+    src/states/gameState/enemies/EnemyManager.cpp
+    src/states/gameState/enemies/DarkElf.cpp
+    src/states/gameState/enemies/Harpy.cpp
+    src/states/gameState/enemies/Mercenary.cpp
 )
 
 set(HEADERS
@@ -26,6 +32,12 @@ set(HEADERS
     src/states/gameState/map/tilemap.hpp
     src/states/gameState/misc/player.hpp
     src/states/gameState/misc/animateSprite.hpp
+    src/states/gameState/enemies/Enemy.hpp
+    src/states/gameState/enemies/Ogre.hpp
+    src/states/gameState/enemies/EnemyManager.hpp
+    src/states/gameState/enemies/DarkElf.hpp
+    src/states/gameState/enemies/Harpy.hpp
+    src/states/gameState/enemies/Mercenary.hpp
 )
 
 include_directories(
@@ -35,6 +47,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/src/states/gameState
     ${PROJECT_SOURCE_DIR}/src/states/gameState/map
     ${PROJECT_SOURCE_DIR}/src/states/gameState/misc
+    ${PROJECT_SOURCE_DIR}/src/states/gameState/enemies
 )
 
 file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})

@@ -4,8 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/home/guillermo/SFML-3.0.0/include",
-                "/home/guillermo/SFML-3.0.0/lib"
+                "/home/meli/SFML-3.0.0/include",
+                "/home/meli/SFML-3.0.0/lib"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
