@@ -17,7 +17,7 @@ void EnemyManager::startWave(int count, EnemyType type,
     mercenaryTexture = &mercTex;
 }
 
-void EnemyManager::updateWave(float dt, const std::vector<sf::Vector2i>& path) {
+void EnemyManager::updateWave(float dt, const std::vector<sf::Vector2i>& path, TileMap& map) {
     if (spawned < enemiesToSpawn && waveClock.getElapsedTime().asSeconds() > spawnInterval) {
         std::shared_ptr<Enemy> enemy;
 
@@ -42,12 +42,21 @@ void EnemyManager::updateWave(float dt, const std::vector<sf::Vector2i>& path) {
         waveClock.restart();
     }
 
-    updateAll(dt);
+    updateAll(dt, map);
 }
 
-void EnemyManager::updateAll(float dt) {
+void EnemyManager::updateAll(float dt, TileMap& map) {
     for (auto& e : enemies) {
+        sf::Vector2i last = e->getLastGridPosition();
         e->update(dt);
+
+        sf::Vector2i current = e->getPosition();
+
+        if (current != last) {
+            map.removeEnemyFromTile(last.x, last.y, e.get());
+            map.addEnemyToTile(current.x, current.y, e.get());
+            e->setLastGridPosition(current);
+        }
     }
 }
 

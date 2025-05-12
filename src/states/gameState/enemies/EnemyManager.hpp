@@ -7,6 +7,7 @@
 #include "DarkElf.hpp"
 #include "Harpy.hpp"
 #include "Mercenary.hpp"
+#include "tilemap.hpp"
 
 enum class EnemyType { Ogre, DarkElf, Harpy, Mercenary };
 
@@ -25,13 +26,13 @@ private:
     const sf::Texture* mercenaryTexture = nullptr;
 
 public:
-    void updateAll(float dt);
+    void updateAll(float dt, TileMap& map);
     void drawAll(sf::RenderWindow& window);
     void startWave(int count, EnemyType type,
                    const sf::Texture& ogreTex,
                    const sf::Texture& darkElfTex,
                    const sf::Texture& harpyTex,
                    const sf::Texture& mercTex);
-    void updateWave(float dt, const std::vector<sf::Vector2i>& path);
+    void updateWave(float dt, const std::vector<sf::Vector2i>& path, TileMap& map);
     std::vector<std::shared_ptr<Enemy>>& getEnemies();
 };

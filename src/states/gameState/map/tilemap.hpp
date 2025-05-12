@@ -1,4 +1,5 @@
 #pragma once
+#include "Enemy.hpp"
 #include <vector>
 #include <utility>
 #include <iostream>
@@ -16,10 +17,14 @@ struct tile
     int x, y;
     TileType type;
     bool isWalkable;
+<<<<<<< HEAD
     int G = 0;
     int H = 0;
     int F() const {return G+H;}
     std::pair<int, int> parent = {-1, -1};
+=======
+    std::vector<Enemy*> enemiesOnTile;
+>>>>>>> 4b710b3 (Primera parte, trabajando torres)
 
     tile(int x, int y, TileType type = TileType::EMPTY)
         : x(x), y(y), type(type) {
@@ -39,6 +44,11 @@ class TileMap {
         void setStart(int x, int y);
         void setGoal(int x, int y);
         void placeTower(int x, int y);
+        void addEnemyToTile(int x, int y, Enemy* enemy);
+        void removeEnemyFromTile(int x, int y, Enemy* enemy);
+        std::vector<Enemy*> getEnemiesOnTile(int x, int y) { 
+            return grid[y][x].enemiesOnTile; 
+        }
 
         const std::vector<std::vector<tile>>& getGrid();
         std::pair<int, int> getStart() const;

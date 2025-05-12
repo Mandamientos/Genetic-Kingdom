@@ -19,19 +19,19 @@ private:
     gameStateManager& manager;
     Player player;
     TileMap map;
-    sf::Texture playerGoldTexture;
-    animateSprite goldAnimated;
+    sf::Texture playerGoldTexture, ogreTexture, darkElfTexture, harpyTexture, mercenaryTexture;
+    sf::Texture archerTowerTexture, archMageTowerTexture, mageTowerTexture;
+    animateSprite goldAnimated, archerTowerAnimated, mageTowerAnimated, archMageTowerAnimated;
     EnemyManager enemyManager;
     std::vector<sf::Vector2i> wavePath;
     AStarPathfinder pathfinder;
     std::vector<std::pair<int, int>> path;
     bool pathPrinted = false;
+    sf::Font fontP;
+    sf::Text textGold, textArcherTower, textArchMageTower, textMageTower;
+    sf::RectangleShape archerTowerButton, mageTowerButton, archMageTowerButton;
+
     bool waveStarted = false;
     int currentWave = 0;
-    
-    sf::Texture ogreTexture;
-    sf::Texture darkElfTexture;
-    sf::Texture harpyTexture;
-    sf::Texture mercenaryTexture;
 
 };

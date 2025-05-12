@@ -3,7 +3,7 @@
 #include "mainMenu.hpp"
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode({800, 600}), "Genetic Kingdom");
+    sf::RenderWindow window(sf::VideoMode({1200, 900}), "Genetic Kingdom");
 
     gameStateManager stateManager;
     stateManager.pushState(std::make_unique<mainMenu>(stateManager));

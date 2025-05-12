@@ -1,4 +1,5 @@
 #include "Enemy.hpp"
+#include <cmath>
 #include <iostream>
 
 
@@ -15,6 +16,24 @@ void Enemy::takeDamage(float amount, const std::string& damageType) {
     health -= effectiveDamage;
 }
 
+void Enemy::update(float deltaTime) {
+    if (sprite && !path.empty()) {
+        sf::Vector2f currentPos = sprite->getPosition();
+        sf::Vector2f targetPos(path[0].x * 35.f, path[0].y * 35.f);
+        sf::Vector2f direction = targetPos - currentPos;
+        float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+
+        if (distance < speed * deltaTime) {
+            gridPosition = path[0];
+            path.erase(path.begin());
+            sprite->setPosition(targetPos);
+        } else {
+            direction /= distance;
+            sprite->move(direction * speed * deltaTime);
+        }
+    }
+}
+
 bool Enemy::isDead() const {
     return health <= 0;
 }
@@ -24,6 +43,9 @@ sf::Vector2i Enemy::getPosition() const {
 }
 
 void Enemy::setPath(const std::vector<sf::Vector2i>& newPath) {
-    std::cout << "setPath() llamado. Primer punto: " << newPath[0].x << ", " << newPath[0].y << std::endl;
     path = newPath;
+    if (!path.empty()) {
+        gridPosition = path[0];
+        lastGridPosition = gridPosition;
+    }
 }
