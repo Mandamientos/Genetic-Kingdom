@@ -223,6 +223,13 @@ void playState::update(sf::RenderWindow& window) {
     mageTowerAnimated.update(deltaTime);
     archMageTowerAnimated.update(deltaTime);    
 
+    //Se reinicia la oleada cada 20 segundos
+    static sf::Clock waveTimer;
+    if (waveTimer.getElapsedTime().asSeconds() >= 20.0f) {
+        waveStarted = false;
+        waveTimer.restart();
+    }
+
     if (!waveStarted) {
         int randomIndex = rand() % 4;
         EnemyType type = static_cast<EnemyType>(randomIndex);
@@ -245,12 +252,6 @@ void playState::update(sf::RenderWindow& window) {
 
     enemyManager.updateWave(deltaTime, wavePath, map);
 
-    // TEST: reiniciar oleada cada 10 segundos
-    //static sf::Clock testWaveClock;
-    //if (testWaveClock.getElapsedTime().asSeconds() > 10.f) {
-    //    waveStarted = false;
-    //    testWaveClock.restart();
-    //}
 }
 
 
