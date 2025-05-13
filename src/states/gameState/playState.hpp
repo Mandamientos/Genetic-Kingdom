@@ -33,5 +33,6 @@ private:
 
     bool waveStarted = false;
     int currentWave = 0;
+    bool pathNeedsUpdate = false;
 
 };

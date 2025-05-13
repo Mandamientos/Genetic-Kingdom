@@ -17,14 +17,11 @@ struct tile
     int x, y;
     TileType type;
     bool isWalkable;
-<<<<<<< HEAD
     int G = 0;
     int H = 0;
     int F() const {return G+H;}
     std::pair<int, int> parent = {-1, -1};
-=======
     std::vector<Enemy*> enemiesOnTile;
->>>>>>> 4b710b3 (Primera parte, trabajando torres)
 
     tile(int x, int y, TileType type = TileType::EMPTY)
         : x(x), y(y), type(type) {

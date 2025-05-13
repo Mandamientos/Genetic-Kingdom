@@ -41,6 +41,7 @@ void EnemyManager::updateWave(float dt, const std::vector<sf::Vector2i>& path, T
         spawned++;
         waveClock.restart();
     }
+    
 
     updateAll(dt, map);
 }
@@ -69,3 +70,4 @@ void EnemyManager::drawAll(sf::RenderWindow& window) {
 std::vector<std::shared_ptr<Enemy>>& EnemyManager::getEnemies() {
     return enemies;
 }
+

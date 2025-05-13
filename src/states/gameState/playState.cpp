@@ -151,6 +151,7 @@ void playState::handleEvent(sf::RenderWindow& window, sf::Event& event) {
                     player.towers.push_back(std::move(tower));
                     player.isCardSelected = false;
                     player.areaOfEffect.clear();
+                    pathNeedsUpdate = true;
                 }
             }
         }
@@ -181,26 +182,37 @@ void playState::handleEvent(sf::RenderWindow& window, sf::Event& event) {
 
 void playState::update(sf::RenderWindow& window) {
     static sf::Clock clock;
+    float deltaTime = clock.restart().asSeconds();
 
 
-    if (!pathPrinted) {
+    if (pathNeedsUpdate || !pathPrinted) {
         path = pathfinder.findPath(map, map.getStart(), map.getGoal()); 
         
-        std::cout << "Ruta encontrada:\n";
-        for (const auto& pos : path) {
-            std::cout << "(" << pos.first << ", " << pos.second << ")\n";
-        }
+        std::cout << "Ruta actualizada:\n";
         wavePath.clear();
         for (const auto& p : path) {
+            std::cout << "(" << p.first << ", " << p.second << ")\n";
             wavePath.push_back(sf::Vector2i(p.first, p.second));
         }
-    
-        pathPrinted = true;
-    }
-    
-    
 
-    float deltaTime = clock.restart().asSeconds();
+        // Se actualiza la ruta de todos los enemigos al inicio y cada vez que se colocan torres
+        for (auto& enemy : enemyManager.getEnemies()) {
+            sf::Vector2i pos = enemy->getLastGridPosition();  
+            // Recalcula la ruta tomando en cuenta la posiciòn actual (para que no se devuelva a start)
+            auto rawPath = pathfinder.findPath(map, {pos.x, pos.y}, map.getGoal());
+            std::vector<sf::Vector2i> newPath;
+            newPath.reserve(rawPath.size());
+            for (const auto& p : rawPath) {
+                newPath.emplace_back(p.first, p.second);
+            }
+            enemy->setPath(newPath);  
+}
+        
+        pathPrinted = true;
+        pathNeedsUpdate = false;
+    }
+
+    
 
     for (const auto& tower : player.towers) {
         tower->update(deltaTime, map);
