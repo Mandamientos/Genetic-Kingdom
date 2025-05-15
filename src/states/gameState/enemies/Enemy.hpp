@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <string>
+#include "genetics/EnemyGenome.hpp"
 
 class Enemy {
 protected:
@@ -15,7 +16,7 @@ protected:
     sf::Vector2i gridPosition;
     sf::Vector2i lastGridPosition;
     std::vector<sf::Vector2i> path;
-
+    EnemyGenome genome;
 
 public:
     Enemy(float h, float s, float ra, float rm, float rt);
@@ -32,5 +33,14 @@ public:
 
     sf::Vector2i getLastGridPosition() const { return lastGridPosition; }
     void setLastGridPosition(const sf::Vector2i& pos) { lastGridPosition = pos; }
+    virtual void applyGenome(const EnemyGenome& g) {
+        genome = g;
+        health = g.health;
+        speed = g.speed;
+        resistArrow = g.resistArrow;
+        resistMagic = g.resistMagic;
+        resistArtillery = g.resistArtillery;
+    }
 
+    EnemyGenome& getGenome() { return genome; }
 };

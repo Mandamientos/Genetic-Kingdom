@@ -4,6 +4,34 @@
 #include <iostream>
 #include <ctime>
 #include <cstdlib>
+#include "genetics/EnemyGenome.hpp"
+
+std::vector<EnemyGenome> generateRandomGenomes(int cantidad, EnemyType typeFijo) {
+    std::vector<EnemyGenome> genomes;
+
+    for (int i = 0; i < cantidad; ++i) {
+        float health = 100.f + static_cast<float>(rand() % 100);
+        float speed = 150.f + static_cast<float>(rand() % 100);
+        float resistArrow = 0.1f * static_cast<float>(rand() % 6);
+        float resistMagic = 0.1f * static_cast<float>(rand() % 6);
+        float resistArtillery = 0.1f * static_cast<float>(rand() % 6);
+
+        genomes.emplace_back(health, speed, resistArrow, resistMagic, resistArtillery, typeFijo);
+    }
+
+    return genomes;
+}
+
+std::string toString(EnemyType type) {
+    switch (type) {
+        case EnemyType::Ogre: return "Ogro";
+        case EnemyType::DarkElf: return "Elfo Oscuro";
+        case EnemyType::Harpy: return "Harpía";
+        case EnemyType::Mercenary: return "Mercenario";
+        default: return "Desconocido";
+    }
+}
+
 
 void configureButton(sf::RectangleShape& button, const sf::Vector2f& size, const sf::Color& fillColor, const sf::Color& outlineColor, float outlineThickness, const sf::Vector2f& position) {
     button.setSize(size);
@@ -231,26 +259,26 @@ void playState::update(sf::RenderWindow& window) {
     }
 
     if (!waveStarted) {
-        int randomIndex = rand() % 4;
-        EnemyType type = static_cast<EnemyType>(randomIndex);
         int cantidad = 3 + (rand() % 8); 
-        std::cout << "Oleada aleatoria #" << currentWave + 1 << ": ";
-        switch (type) {
-            case EnemyType::Ogre: std::cout << "Ogro"; break;
-            case EnemyType::DarkElf: std::cout << "Elfo Oscuro"; break;
-            case EnemyType::Harpy: std::cout << "Harpía"; break;
-            case EnemyType::Mercenary: std::cout << "Mercenario"; break;
-        }
-        std::cout << " x" << cantidad << std::endl;
-
-        enemyManager.startWave(cantidad, type,
-            ogreTexture, darkElfTexture, harpyTexture, mercenaryTexture);
-
+        EnemyType tipo = static_cast<EnemyType>(rand() % 4);
+        
+        std::vector<EnemyGenome> genomes = generateRandomGenomes(cantidad, tipo);
+    
+        std::cout << "Oleada aleatoria #" << currentWave + 1 << ": " 
+                  << toString(tipo) << " x" << cantidad << "\n";
+    
+        enemyManager.startWaveFromGenomes(
+            genomes,
+            ogreTexture, darkElfTexture, harpyTexture, mercenaryTexture,
+            wavePath
+        );
+    
         waveStarted = true;
         currentWave++;
     }
+    
 
-    enemyManager.updateWave(deltaTime, wavePath, map);
+    enemyManager.updateWaveFromGenomes(deltaTime, wavePath, map);
 
 }
 

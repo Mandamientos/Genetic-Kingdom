@@ -25,6 +25,7 @@ set(SOURCES
     src/states/gameState/enemies/Harpy.cpp
     src/states/gameState/enemies/Mercenary.cpp
     src/states/gameState/map/aStar.cpp 
+    src/states/gameState/genetics/GeneticManager.cpp
 )
 
 set(HEADERS
@@ -45,6 +46,9 @@ set(HEADERS
     src/states/gameState/enemies/Harpy.hpp
     src/states/gameState/enemies/Mercenary.hpp
     src/states/gameState/map/aStar.hpp
+    src/states/gameState/genetics/GeneticManager.hpp
+    src/states/gameState/genetics/EnemyGenome.hpp
+    src/states/gameState/enemies/EnemyType.hpp
 )
 
 include_directories(

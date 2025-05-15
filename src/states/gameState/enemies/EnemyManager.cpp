@@ -1,50 +1,57 @@
 #include "EnemyManager.hpp"
 #include <algorithm>
 
-void EnemyManager::startWave(int count, EnemyType type,
-                             const sf::Texture& ogreTex,
-                             const sf::Texture& darkElfTex,
-                             const sf::Texture& harpyTex,
-                             const sf::Texture& mercTex) {
-    spawned = 0;
-    enemiesToSpawn = count;
-    currentType = type;
+void EnemyManager::startWaveFromGenomes(
+    const std::vector<EnemyGenome>& genomes,
+    const sf::Texture& ogreTex,
+    const sf::Texture& darkElfTex,
+    const sf::Texture& harpyTex,
+    const sf::Texture& mercTex,
+    const std::vector<sf::Vector2i>& path
+) {
+    enemies.clear();
+    pendingGenomes = genomes;
+    currentWavePath = path;
     waveClock.restart();
 
     ogreTexture = &ogreTex;
     darkElfTexture = &darkElfTex;
     harpyTexture = &harpyTex;
     mercenaryTexture = &mercTex;
+
+    spawned = 0;
+    enemiesToSpawn = genomes.size();
 }
 
-void EnemyManager::updateWave(float dt, const std::vector<sf::Vector2i>& path, TileMap& map) {
-    if (spawned < enemiesToSpawn && waveClock.getElapsedTime().asSeconds() > spawnInterval) {
+
+void EnemyManager::updateWaveFromGenomes(float dt, const std::vector<sf::Vector2i>& path, TileMap& map) {
+    if (!pendingGenomes.empty() && waveClock.getElapsedTime().asSeconds() > spawnInterval) {
+        const EnemyGenome& genome = pendingGenomes.front();
+
         std::shared_ptr<Enemy> enemy;
 
-        switch (currentType) {
-            case EnemyType::Ogre:
-                enemy = std::make_shared<Ogre>(*ogreTexture);
-                break;
-            case EnemyType::DarkElf:
-                enemy = std::make_shared<DarkElf>(*darkElfTexture);
-                break;
-            case EnemyType::Harpy:
-                enemy = std::make_shared<Harpy>(*harpyTexture);
-                break;
-            case EnemyType::Mercenary:
-                enemy = std::make_shared<Mercenary>(*mercenaryTexture);
-                break;
+        switch (genome.type) {
+            case EnemyType::Ogre: enemy = std::make_shared<Ogre>(*ogreTexture); break;
+            case EnemyType::DarkElf: enemy = std::make_shared<DarkElf>(*darkElfTexture); break;
+            case EnemyType::Harpy: enemy = std::make_shared<Harpy>(*harpyTexture); break;
+            case EnemyType::Mercenary: enemy = std::make_shared<Mercenary>(*mercenaryTexture); break;
         }
 
-        enemy->setPath(path);
-        enemies.push_back(enemy);
-        spawned++;
+        if (enemy) {
+            enemy->applyGenome(genome);
+            enemy->setPath(currentWavePath);
+            map.addEnemyToTile(currentWavePath[0].x, currentWavePath[0].y, enemy.get());
+            enemies.push_back(enemy);
+            spawned++;
+        }
+
+        pendingGenomes.erase(pendingGenomes.begin());
         waveClock.restart();
     }
-    
 
     updateAll(dt, map);
 }
+
 
 void EnemyManager::updateAll(float dt, TileMap& map) {
     for (auto& e : enemies) {
