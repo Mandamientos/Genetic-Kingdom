@@ -4,6 +4,33 @@
 #include <iostream>
 #include <ctime>
 #include <cstdlib>
+#include "genetics/EnemyGenome.hpp"
+
+std::vector<EnemyGenome> generateRandomGenomes(int cantidad, EnemyType typeFijo) {
+    std::vector<EnemyGenome> genomes;
+
+    for (int i = 0; i < cantidad; ++i) {
+        float health = 150.f + static_cast<float>(rand() % 200);
+        float speed = 20.f + static_cast<float>(rand() % 2);
+        float resistArrow = 0.2f * static_cast<float>(rand() % 2); 
+        float resistMagic = 0.2f * static_cast<float>(rand() % 2;
+        float resistArtillery = 0.2f * static_cast<float>(rand() % 2);
+
+        genomes.emplace_back(health, speed, resistArrow, resistMagic, resistArtillery, typeFijo);
+    }
+    return genomes;
+}
+
+std::string toString(EnemyType type) {
+    switch (type) {
+        case EnemyType::Ogre: return "Ogro";
+        case EnemyType::DarkElf: return "Elfo Oscuro";
+        case EnemyType::Harpy: return "Harpía";
+        case EnemyType::Mercenary: return "Mercenario";
+        default: return "Desconocido";
+    }
+}
+
 
 void configureButton(sf::RectangleShape& button, const sf::Vector2f& size, const sf::Color& fillColor, const sf::Color& outlineColor, float outlineThickness, const sf::Vector2f& position) {
     button.setSize(size);
@@ -125,9 +152,9 @@ playState::playState(gameStateManager& manager) : manager(manager), map(26, 19),
     
     configureButton(archMageTowerButton, sf::Vector2f(150.f, 100.f), sf::Color(0x5D, 0x75, 0xA7), sf::Color::White, 2.f, sf::Vector2f(352.f, 695.f));
 
-    player.upgrades.push_back(std::make_unique<towerUpgrade>(35, 1, 100, towerType::ARCHER));
-    player.upgrades.push_back(std::make_unique<towerUpgrade>(50, 1, 200, towerType::MAGE));
-    player.upgrades.push_back(std::make_unique<towerUpgrade>(90, 1, 300, towerType::ARCHMAGE));
+    player.upgrades.push_back(std::make_unique<towerUpgrade>(50, 1, 100, towerType::ARCHER));
+    player.upgrades.push_back(std::make_unique<towerUpgrade>(90, 1, 200, towerType::MAGE));
+    player.upgrades.push_back(std::make_unique<towerUpgrade>(120, 1, 300, towerType::ARCHMAGE));
 
     configureText(textGold, std::to_string(player.getGold()), fontP, 20, sf::Color(255, 215, 0), sf::Color::Black, 3.f, sf::Vector2f(575.f, 790.f)); 
 
@@ -259,24 +286,37 @@ void playState::handleEvent(sf::RenderWindow& window, sf::Event& event) {
 
 void playState::update(sf::RenderWindow& window) {
     static sf::Clock clock;
-    if (!pathPrinted) {
-        path = pathfinder.findPath(map, map.getStart(), map.getGoal()); 
-        
-        std::cout << "Ruta encontrada:\n";
-        for (const auto& pos : path) {
-            std::cout << "(" << pos.first << ", " << pos.second << ")\n";
-        }
-        wavePath.clear();
-        for (const auto& p : path) {
-            wavePath.push_back(sf::Vector2i(p.first, p.second));
-        }
-    
-        pathPrinted = true;
-    }
-    
-    
 
     float deltaTime = clock.restart().asSeconds();
+
+    if (pathNeedsUpdate || !pathPrinted) {
+        path = pathfinder.findPath(map, map.getStart(), map.getGoal()); 
+        
+        std::cout << "Ruta actualizada:\n";
+        wavePath.clear();
+        for (const auto& p : path) {
+            std::cout << "(" << p.first << ", " << p.second << ")\n";
+            wavePath.push_back(sf::Vector2i(p.first, p.second));
+        }
+
+        // Se actualiza la ruta de todos los enemigos al inicio y cada vez que se colocan torres
+        for (auto& enemy : enemyManager.getEnemies()) {
+            sf::Vector2i pos = enemy->getLastGridPosition();  
+            // Recalcula la ruta tomando en cuenta la posiciòn actual (para que no se devuelva a start)
+            auto rawPath = pathfinder.findPath(map, {pos.x, pos.y}, map.getGoal());
+            std::vector<sf::Vector2i> newPath;
+            newPath.reserve(rawPath.size());
+            for (const auto& p : rawPath) {
+                newPath.emplace_back(p.first, p.second);
+            }
+            enemy->setPath(newPath);  
+        }
+        
+        pathPrinted = true;
+        pathNeedsUpdate = false;
+    }
+
+    
 
     for (const auto& tower : player.towers) {
         tower->update(deltaTime, map);
@@ -289,34 +329,33 @@ void playState::update(sf::RenderWindow& window) {
     player.castleUpdate(deltaTime);
     
 
+    //Se reinicia la oleada cada 20 segundos
+    static sf::Clock waveTimer;
+    if (waveTimer.getElapsedTime().asSeconds() >= 10.0f) {
+        waveStarted = false;
+        waveTimer.restart();
+    }
+
     if (!waveStarted) {
-        int randomIndex = rand() % 4;
-        EnemyType type = static_cast<EnemyType>(randomIndex);
         int cantidad = 3 + (rand() % 8); 
-        std::cout << "Oleada aleatoria #" << currentWave + 1 << ": ";
-        switch (type) {
-            case EnemyType::Ogre: std::cout << "Ogro"; break;
-            case EnemyType::DarkElf: std::cout << "Elfo Oscuro"; break;
-            case EnemyType::Harpy: std::cout << "Harpía"; break;
-            case EnemyType::Mercenary: std::cout << "Mercenario"; break;
-        }
-        std::cout << " x" << cantidad << std::endl;
-
-        enemyManager.startWave(cantidad, type,
-            ogreTexture, darkElfTexture, harpyTexture, mercenaryTexture);
-
+        EnemyType tipo = static_cast<EnemyType>(rand() % 4);
+        
+        std::vector<EnemyGenome> genomes = generateRandomGenomes(cantidad, tipo);
+    
+        std::cout << "Oleada aleatoria #" << currentWave + 1 << ": " 
+                  << toString(tipo) << " x" << cantidad << "\n";
+    
+        enemyManager.startWaveFromGenomes(
+            genomes,
+            ogreTexture, darkElfTexture, harpyTexture, mercenaryTexture,
+            wavePath
+        );
+    
         waveStarted = true;
         currentWave++;
     }
-
-    enemyManager.updateWave(deltaTime, wavePath, map, *player.getCastle(), player);
-
-    static sf::Clock testWaveClock;
-    if (testWaveClock.getElapsedTime().asSeconds() > 10.f) {
-        waveStarted = false;
-        testWaveClock.restart();
-    }
-
+    
+    enemyManager.updateWaveFromGenomes(deltaTime, wavePath, map, *player.getCastle(), player);
     if(player.getCastle()->getHealth() <= 0) {
         manager.popState();
     }

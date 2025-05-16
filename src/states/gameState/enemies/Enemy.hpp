@@ -3,8 +3,11 @@
 #include <vector>
 #include <string>
 #include "castle.hpp"
+#include "genetics/EnemyGenome.hpp"
 
 class TileMap;
+
+
 
 class Enemy {
 protected:
@@ -21,6 +24,7 @@ protected:
     std::vector<sf::Vector2i> path;
     sf::RectangleShape healthBarBackground;
     sf::RectangleShape healthBarForeground;
+    EnemyGenome genome;
 
 
 public:
@@ -41,5 +45,15 @@ public:
     
     int getRemainingSteps() const {return static_cast<int>(path.size()); }
     int getMaxHealth() const { return maxHealth; }
+    virtual void applyGenome(const EnemyGenome& g) {
+        genome = g;
+        health = g.health;
+        maxHealth = g.health;
+        speed = g.speed;
+        resistArrow = g.resistArrow;
+        resistMagic = g.resistMagic;
+        resistArtillery = g.resistArtillery;
+    }
 
+    EnemyGenome& getGenome() { return genome; }
 };

@@ -11,7 +11,8 @@
 #include "castle.hpp"
 #include "player.hpp"
 
-enum class EnemyType { Ogre, DarkElf, Harpy, Mercenary };
+#include "EnemyType.hpp"
+
 
 class EnemyManager {
 private:
@@ -30,11 +31,15 @@ private:
 public:
     void updateAll(float dt, TileMap& map, castle& castle, Player& player);
     void drawAll(sf::RenderWindow& window);
-    void startWave(int count, EnemyType type,
+    void startWaveFromGenomes(const std::vector<EnemyGenome>& genomes,
                    const sf::Texture& ogreTex,
                    const sf::Texture& darkElfTex,
                    const sf::Texture& harpyTex,
-                   const sf::Texture& mercTex);
-    void updateWave(float dt, const std::vector<sf::Vector2i>& path, TileMap& map, castle& castle, Player& player);
+                   const sf::Texture& mercTex,
+                   const std::vector<sf::Vector2i>& path);
+    void updateWaveFromGenomes(float dt, const std::vector<sf::Vector2i>& path, TileMap& map,  castle& castle, Player& player);
     std::vector<std::shared_ptr<Enemy>>& getEnemies();
+    std::vector<EnemyGenome> pendingGenomes;
+    std::vector<sf::Vector2i> currentWavePath;
+
 };
