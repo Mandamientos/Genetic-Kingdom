@@ -39,15 +39,15 @@ void calculateAreaOfEffect(std::vector<std::pair<int, int>>& areaOfEffect, int r
     }
 }
 
-playState::playState(gameStateManager& manager) : manager(manager), map(26, 19), textGold(fontP), textArcherTower(fontP), textArchMageTower(fontP), textMageTower(fontP) {
+playState::playState(gameStateManager& manager) : manager(manager), map(26, 19), textGold(fontP), textArcherTower(fontP), textArchMageTower(fontP), textMageTower(fontP), player(textGold), upgradeTextArcherTower(fontP), upgradeTextArchMageTower(fontP), upgradeTextMageTower(fontP) {
     map.setStart(0, 0);
     map.setGoal(25, 9);
     
-
-    player = Player();
-
     srand(static_cast<unsigned>(time(nullptr)));
 
+    if (!castleTexture.loadFromFile("assets/sprites/castle.gif")) {
+        std::cerr << "Error loading ogre.png" << std::endl;
+    }
     if (!ogreTexture.loadFromFile("assets/sprites/ogre.png")) {
         std::cerr << "Error loading ogre.png" << std::endl;
     }
@@ -93,8 +93,17 @@ playState::playState(gameStateManager& manager) : manager(manager), map(26, 19),
         std::cerr << "Error loading font" << std::endl;
     }
 
+    if(!bgBuffer.loadFromFile("assets/sfx/battle.mp3")) {
+        std::cerr << "Error loading sfx..." << std::endl; 
+    }
+
+    bgTheme = std::make_unique<sf::Sound>(bgBuffer);
+    bgTheme->play();
+    bgTheme->setVolume(15);
+    bgTheme->setLooping(true);
+
     goldAnimated.setDrawSize(sf::Vector2f(50.f, 50.f));
-    goldAnimated.setPosition(sf::Vector2f(520.f, 695.f));
+    goldAnimated.setPosition(sf::Vector2f(520.f, 775.f));
     
     archerTowerAnimated.setDrawSize(sf::Vector2f(125.f, 125.f));
     archerTowerAnimated.setPosition(sf::Vector2f(15.f, 650.f)); // Ajustar posición
@@ -114,11 +123,22 @@ playState::playState(gameStateManager& manager) : manager(manager), map(26, 19),
     configureButton(archMageTowerButton, sf::Vector2f(150.f, 100.f), sf::Color(0x5D, 0x75, 0xA7), sf::Color::White, 2.f, sf::Vector2f(352.f, 695.f));
     configureText(textArchMageTower, "300", fontP, 20, sf::Color::White, sf::Color::Black, 0.f, sf::Vector2f(430.f, 735.f));
     
-    configureText(textGold, std::to_string(player.getGold()), fontP, 20, sf::Color(255, 215, 0), sf::Color::Black, 3.f, sf::Vector2f(530.f, 750.f)); 
+    configureButton(archMageTowerButton, sf::Vector2f(150.f, 100.f), sf::Color(0x5D, 0x75, 0xA7), sf::Color::White, 2.f, sf::Vector2f(352.f, 695.f));
 
-    player.upgrades.push_back(std::make_unique<towerUpgrade>(10, 1, 100, towerType::ARCHER));
-    player.upgrades.push_back(std::make_unique<towerUpgrade>(20, 1, 200, towerType::MAGE));
-    player.upgrades.push_back(std::make_unique<towerUpgrade>(30, 1, 300, towerType::ARCHMAGE));
+    player.upgrades.push_back(std::make_unique<towerUpgrade>(35, 1, 100, towerType::ARCHER));
+    player.upgrades.push_back(std::make_unique<towerUpgrade>(50, 1, 200, towerType::MAGE));
+    player.upgrades.push_back(std::make_unique<towerUpgrade>(90, 1, 300, towerType::ARCHMAGE));
+
+    configureText(textGold, std::to_string(player.getGold()), fontP, 20, sf::Color(255, 215, 0), sf::Color::Black, 3.f, sf::Vector2f(575.f, 790.f)); 
+
+    configureButton(upgradeArcherButton, sf::Vector2f(150.f, 50.f), sf::Color(0x5D, 0x75, 0xA7), sf::Color::White, 2.f, sf::Vector2f(28.f, 825.f));
+    configureText(upgradeTextArcherTower, std::to_string(player.upgrades[0]->getUpgradeCost()), fontP, 20, sf::Color(255, 215, 0), sf::Color::Black, 3.f, sf::Vector2f(76.f, 840.f)); 
+
+    configureButton(upgradeMageButton, sf::Vector2f(150.f, 50.f), sf::Color(0x5D, 0x75, 0xA7), sf::Color::White, 2.f, sf::Vector2f(190.f, 825.f));
+    configureText(upgradeTextMageTower, std::to_string(player.upgrades[1]->getUpgradeCost()), fontP, 20, sf::Color(255, 215, 0), sf::Color::Black, 3.f, sf::Vector2f(238.f, 840.f)); 
+
+    configureButton(upgradeArchMageButton, sf::Vector2f(150.f, 50.f), sf::Color(0x5D, 0x75, 0xA7), sf::Color::White, 2.f, sf::Vector2f(352.f, 825.f));
+    configureText(upgradeTextArchMageTower, std::to_string(player.upgrades[2]->getUpgradeCost()), fontP, 20, sf::Color(255, 215, 0), sf::Color::Black, 3.f, sf::Vector2f(400.f, 840.f)); 
 }
 
 void playState::handleEvent(sf::RenderWindow& window, sf::Event& event) {
@@ -131,6 +151,15 @@ void playState::handleEvent(sf::RenderWindow& window, sf::Event& event) {
     int col = mousePos.x / 35;
 
     if (player.isCardSelected) {
+
+        if(const auto* keyEvent = event.getIf<sf::Event::KeyPressed>()) {
+            if(keyEvent->code == sf::Keyboard::Key::Escape) {
+                player.isCardSelected = false;
+                player.areaOfEffect.clear();
+                return;
+            }
+        }
+
         std::pair<int, int> pos = {col, row};
 
         if (pos.first >= 0 && pos.first < 26 &&
@@ -146,11 +175,22 @@ void playState::handleEvent(sf::RenderWindow& window, sf::Event& event) {
             }
 
             if (mouseEvent && mouseEvent->button == sf::Mouse::Button::Left) {
+                
                 if (map.getGrid()[row][col].type == TileType::EMPTY && map.getGrid()[row][col].enemiesOnTile.empty()) {
-                    auto tower = towerFactory::createTower(player.selectedTowerType, archerTowerTexture, pos, *player.upgrades[static_cast<int>(player.selectedTowerType)], map);
-                    player.towers.push_back(std::move(tower));
-                    player.isCardSelected = false;
-                    player.areaOfEffect.clear();
+                    map.placeTower(col, row);
+                    if (!pathfinder.findPath(map, map.getStart(), map.getGoal()).empty()) {
+                        std::unique_ptr<tower> tower;
+                        if(player.selectedTowerType == towerType::ARCHER) { tower = towerFactory::createTower(player.selectedTowerType, archerTowerTexture, pos, *player.upgrades[static_cast<int>(player.selectedTowerType)], map); }
+                        if(player.selectedTowerType == towerType::MAGE) { tower = towerFactory::createTower(player.selectedTowerType, mageTowerTexture, pos, *player.upgrades[static_cast<int>(player.selectedTowerType)], map); }
+                        if(player.selectedTowerType == towerType::ARCHMAGE) { tower = towerFactory::createTower(player.selectedTowerType, archMageTowerTexture, pos, *player.upgrades[static_cast<int>(player.selectedTowerType)], map); }
+                        
+                        player.towers.push_back(std::move(tower));
+                        player.isCardSelected = false;
+                        player.areaOfEffect.clear();
+                        player.spendGold(player.upgrades[static_cast<int>(player.selectedTowerType)]->getCost());
+                    } else {
+                        map.freeTile(col, row);
+                    }
                 }
             }
         }
@@ -161,15 +201,20 @@ void playState::handleEvent(sf::RenderWindow& window, sf::Event& event) {
             if (button->getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
                 button->setFillColor(sf::Color(0x1C, 0x52, 0xBF));
                 if(mouseEvent && mouseEvent->button == sf::Mouse::Button::Left) {
-                    if (button == &archerTowerButton) {
+                    if (button == &archerTowerButton && player.getGold() >= 100 && button->getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
                         player.selectedTowerType = towerType::ARCHER;
-                    } else if (button == &mageTowerButton) {
+                        button->setFillColor(sf::Color::Green);
+                        player.isCardSelected = true;
+                    } else if (button == &mageTowerButton && player.getGold() >= 200 && button->getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
                         player.selectedTowerType = towerType::MAGE;
-                    } else if (button == &archMageTowerButton) {
+                        button->setFillColor(sf::Color::Green);
+                        player.isCardSelected = true;
+                    } else if (button == &archMageTowerButton && player.getGold() >= 300 && button->getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
                         player.selectedTowerType = towerType::ARCHMAGE;
+                        button->setFillColor(sf::Color::Green);
+                        player.isCardSelected = true;
                     }
-                    player.isCardSelected = true;
-                    button->setFillColor(sf::Color::Green);
+                    return;
                 }
             } else {
                 button->setFillColor(sf::Color(0x5D, 0x75, 0xA7));
@@ -177,12 +222,43 @@ void playState::handleEvent(sf::RenderWindow& window, sf::Event& event) {
         }
     }
 
+    for (sf::RectangleShape* button : {&upgradeArcherButton, &upgradeMageButton, &upgradeArchMageButton}) {
+        if(button->getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
+            button->setFillColor(sf::Color(0x1C, 0x52, 0xBF));
+            const auto& mouseEvent = event.getIf<sf::Event::MouseButtonPressed>();
+            if(mouseEvent && mouseEvent->button == sf::Mouse::Button::Left) {
+                if(button == &upgradeArcherButton) {
+                    if(player.upgrades[0]->getUpgradeCost() < player.getGold() && player.upgrades[0]->getLevel() <= 3) {
+                        button->setFillColor(sf::Color::Green);
+                        player.spendGold(player.upgrades[0]->getUpgradeCost());
+                        player.upgrades[0]->upgrade();
+                        upgradeTextArcherTower.setString(std::to_string(player.upgrades[0]->getUpgradeCost()));
+                    } else { button->setFillColor(sf::Color::Red); }
+                } else if (button == &upgradeMageButton) {
+                    if(player.upgrades[1]->getUpgradeCost() < player.getGold() && player.upgrades[1]->getLevel() <= 3) {
+                        button->setFillColor(sf::Color::Green);
+                        player.spendGold(player.upgrades[1]->getUpgradeCost());
+                        player.upgrades[1]->upgrade();
+                        upgradeTextMageTower.setString(std::to_string(player.upgrades[1]->getUpgradeCost()));
+                    } else { button->setFillColor(sf::Color::Red); }
+                } else if (button == &upgradeArchMageButton) {
+                    if(player.upgrades[2]->getUpgradeCost() < player.getGold() && player.upgrades[2]->getLevel() <= 3) {
+                        button->setFillColor(sf::Color::Green);
+                        player.spendGold(player.upgrades[2]->getUpgradeCost());
+                        player.upgrades[2]->upgrade();
+                        upgradeTextArchMageTower.setString(std::to_string(player.upgrades[2]->getUpgradeCost()));
+                    } else { button->setFillColor(sf::Color::Red); }
+                }
+            }
+        } else {
+            button->setFillColor(sf::Color(0x5D, 0x75, 0xA7));
+        }
+    }
+
 }
 
 void playState::update(sf::RenderWindow& window) {
     static sf::Clock clock;
-
-
     if (!pathPrinted) {
         path = pathfinder.findPath(map, map.getStart(), map.getGoal()); 
         
@@ -209,7 +285,9 @@ void playState::update(sf::RenderWindow& window) {
     goldAnimated.update(deltaTime);
     archerTowerAnimated.update(deltaTime);
     mageTowerAnimated.update(deltaTime);
-    archMageTowerAnimated.update(deltaTime);    
+    archMageTowerAnimated.update(deltaTime); 
+    player.castleUpdate(deltaTime);
+    
 
     if (!waveStarted) {
         int randomIndex = rand() % 4;
@@ -231,14 +309,17 @@ void playState::update(sf::RenderWindow& window) {
         currentWave++;
     }
 
-    enemyManager.updateWave(deltaTime, wavePath, map);
+    enemyManager.updateWave(deltaTime, wavePath, map, *player.getCastle(), player);
 
-    // TEST: reiniciar oleada cada 10 segundos
-    //static sf::Clock testWaveClock;
-    //if (testWaveClock.getElapsedTime().asSeconds() > 10.f) {
-    //    waveStarted = false;
-    //    testWaveClock.restart();
-    //}
+    static sf::Clock testWaveClock;
+    if (testWaveClock.getElapsedTime().asSeconds() > 10.f) {
+        waveStarted = false;
+        testWaveClock.restart();
+    }
+
+    if(player.getCastle()->getHealth() <= 0) {
+        manager.popState();
+    }
 }
 
 
@@ -306,11 +387,11 @@ void playState::render(sf::RenderWindow& window) {
     }
 
 
-    for (const auto& button: {archerTowerButton, mageTowerButton, archMageTowerButton}) {
+    for (const auto& button: {archerTowerButton, mageTowerButton, archMageTowerButton, upgradeArcherButton, upgradeMageButton, upgradeArchMageButton}) {
         window.draw(button);
     }
 
-    for (const auto& text: {textGold, textArcherTower, textArchMageTower, textMageTower}) {
+    for (const auto& text: {textGold, textArcherTower, textArchMageTower, textMageTower, upgradeTextArcherTower, upgradeTextMageTower, upgradeTextArchMageTower}) {
         window.draw(text);
     }
 
@@ -323,6 +404,7 @@ void playState::render(sf::RenderWindow& window) {
     }
 
     enemyManager.drawAll(window);
+    player.castleRender(window);
 
     window.display();
 }

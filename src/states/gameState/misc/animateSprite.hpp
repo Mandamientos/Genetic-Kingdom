@@ -15,7 +15,11 @@ class animateSprite : public sf::Drawable, public sf::Transformable {
         void setPosition(const sf::Vector2f& position);
         void setDirection(bool facingRight);
         void setCol(const sf::Color& color);
+        void setFrameTime(const float newFrameTime) { frameTime = newFrameTime; }
+        void setFrameCount(const float newFrameCount) { frameCount = newFrameCount; }
+        void setRotation(const sf::Angle angle) { sprite->setRotation(angle); }
         sf::Vector2f getPosition() const;
+        
     
     private:
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;

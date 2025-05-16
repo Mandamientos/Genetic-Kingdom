@@ -16,8 +16,11 @@ set(SOURCES
     src/states/gameState/map/tilemap.cpp
     src/states/gameState/misc/player.cpp
     src/states/gameState/misc/animateSprite.cpp
+    src/states/gameState/entities/castle.cpp
     src/states/gameState/entities/tower.cpp
     src/states/gameState/entities/archerTower.cpp
+    src/states/gameState/entities/mageTower.cpp
+    src/states/gameState/entities/archMageTower.cpp
     src/states/gameState/enemies/Enemy.cpp
     src/states/gameState/enemies/Ogre.cpp
     src/states/gameState/enemies/EnemyManager.cpp
@@ -35,8 +38,11 @@ set(HEADERS
     src/states/gameState/map/tilemap.hpp
     src/states/gameState/misc/player.hpp
     src/states/gameState/misc/animateSprite.hpp
+    src/states/gameState/entities/castle.hpp
     src/states/gameState/entities/tower.hpp
     src/states/gameState/entities/archerTower.hpp
+    src/states/gameState/entities/mageTower.hpp
+    src/states/gameState/entities/archMageTower.hpp
     src/states/gameState/entities/towerFactory.hpp
     src/states/gameState/enemies/Enemy.hpp
     src/states/gameState/enemies/Ogre.hpp
@@ -66,4 +72,5 @@ target_link_libraries(Genetic-Kingdom
     sfml-graphics
     sfml-window
     sfml-system
+    sfml-audio
 )

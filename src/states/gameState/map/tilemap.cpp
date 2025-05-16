@@ -1,4 +1,5 @@
 #include "tilemap.hpp"
+#include "aStar.hpp"
 #include <algorithm>
 
 TileMap::TileMap(int w, int h) : width(w), height(h) {
@@ -56,6 +57,11 @@ void TileMap::placeTower(int x, int y) {
     } else {
         std::cerr << "Invalid tower position" << std::endl;
     }
+}
+
+void TileMap::freeTile(int x, int y) {
+    grid[y][x].type = TileType::EMPTY;
+    grid[y][x].isWalkable = true;
 }
 
 const std::vector<std::vector<tile>>& TileMap::getGrid() {

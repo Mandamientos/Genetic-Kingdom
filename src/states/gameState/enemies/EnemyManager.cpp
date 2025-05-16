@@ -17,7 +17,7 @@ void EnemyManager::startWave(int count, EnemyType type,
     mercenaryTexture = &mercTex;
 }
 
-void EnemyManager::updateWave(float dt, const std::vector<sf::Vector2i>& path, TileMap& map) {
+void EnemyManager::updateWave(float dt, const std::vector<sf::Vector2i>& path, TileMap& map, castle& castle, Player& player) {
     if (spawned < enemiesToSpawn && waveClock.getElapsedTime().asSeconds() > spawnInterval) {
         std::shared_ptr<Enemy> enemy;
 
@@ -42,13 +42,25 @@ void EnemyManager::updateWave(float dt, const std::vector<sf::Vector2i>& path, T
         waveClock.restart();
     }
 
-    updateAll(dt, map);
+    updateAll(dt, map, castle, player);
 }
 
-void EnemyManager::updateAll(float dt, TileMap& map) {
+void EnemyManager::updateAll(float dt, TileMap& map, castle& castle, Player& player) {
+    enemies.erase(
+        std::remove_if(enemies.begin(), enemies.end(), [&map, &player](const std::shared_ptr<Enemy>& e) { 
+            if(e->isDead()) {
+                sf::Vector2i last = e->getLastGridPosition();
+                if(e->getLastGridPosition() != sf::Vector2i(25, 9)) { player.addGold(e->getMaxHealth()/4); }
+                map.removeEnemyFromTile(last.x, last.y, e.get());
+                return true; 
+            }
+            return false;
+        }),
+        enemies.end());
+
     for (auto& e : enemies) {
         sf::Vector2i last = e->getLastGridPosition();
-        e->update(dt);
+        e->update(dt, map, castle);
 
         sf::Vector2i current = e->getPosition();
 

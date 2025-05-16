@@ -1,5 +1,7 @@
 #include "tower.hpp"
 #include "archerTower.hpp"
+#include "mageTower.hpp"
+#include "archMageTower.hpp"
 #include "tilemap.hpp"
 #include <memory>
 
@@ -9,11 +11,13 @@ class towerFactory {
             switch (type) {
                 case towerType::ARCHER:
                     map.placeTower(pos.first, pos.second);
-                    return std::make_unique<archerTower>(texture, pos, stats);
+                    return std::make_unique<archerTower>(texture, pos, stats, map);
                 case towerType::MAGE:
-                    // return std::make_unique<mageTower>(texture, pos);
+                    map.placeTower(pos.first, pos.second);
+                    return std::make_unique<mageTower>(texture, pos, stats, map);
                 case towerType::ARCHMAGE:
-                    // return std::make_unique<archMageTower>(texture, pos);
+                    map.placeTower(pos.first, pos.second);
+                    return std::make_unique<archMageTower>(texture, pos, stats, map);
                 default:
                     throw std::invalid_argument("Invalid TowerType");
             }

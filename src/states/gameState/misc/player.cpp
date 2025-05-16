@@ -1,16 +1,19 @@
 #include <iostream>
 #include "player.hpp"
 
-Player::Player() {}
-
-void Player::addGold (int amount, sf::Text& textGold) {
-    gold += amount;
-    updateGold(gold, textGold);
+Player::Player(sf::Text& goldText) : goldText(goldText) {
+    playerCastle = std::make_unique<castle>();
 }
 
-bool Player::spendGold (int amount, sf::Text& textGold) {
+void Player::addGold (int amount) {
+    gold += amount;
+    updateGold(gold);
+}
+
+bool Player::spendGold (int amount) {
     if (gold >= amount) {
         gold -= amount;
+        updateGold(gold);
         return true;
     } else {
         std::cout << "Not enough gold!" << std::endl;
@@ -22,6 +25,6 @@ int Player::getGold () const {
     return gold;
 }
 
-void Player::updateGold (int currentGold, sf::Text& textGold) {
-    textGold.setString("Gold: " + std::to_string(currentGold));
+void Player::updateGold (int currentGold) {
+    goldText.setString(std::to_string(currentGold));
 }

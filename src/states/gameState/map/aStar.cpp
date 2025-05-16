@@ -15,17 +15,27 @@ static int heuristic(const tile& a, const tile& b) {
 
 // Obteniendo los "vecinos" de la casilla (verticales, horizontales y diagonales).
 
-static std::vector<std::pair<int, int>> getNeighbors(const tile& t, int width, int height) {
+static std::vector<std::pair<int, int>> getNeighbors(const tile& t, int width, int height, const std::vector<std::vector<tile>>& grid) {
     std::vector<std::pair<int, int>> neighbors;
     const std::vector<std::pair<int, int>> directions = {
         { 0, -1}, { 1,  0}, { 0,  1}, {-1,  0}, 
-        {-1, -1}, { 1, -1}, { 1,  1}, {-1,  1}  
+    //    {-1, -1}, { 1, -1}, { 1,  1}, {-1,  1}  
     };
 
     for (const auto& [dx, dy] : directions) {
         int nx = t.x + dx;
         int ny = t.y + dy;
         if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+            if (dx != 0 && dy != 0) {
+                int adjX = t.x + dx;
+                int adjY = t.y;
+                int adjY2 = t.y + dy;
+                int adjX2 = t.x;
+
+                if (!grid[adjY][adjX2].isWalkable || !grid[adjY2][adjX].isWalkable)
+                    continue;
+            }
+
             neighbors.emplace_back(nx, ny);
         }
     }
@@ -91,7 +101,7 @@ std::vector<std::pair<int, int>> AStarPathfinder::findPath(
 
         closedSet.insert({cx, cy});
 
-        for (auto [nx, ny] : getNeighbors(grid[cy][cx], width, height)) {
+        for (auto [nx, ny] : getNeighbors(grid[cy][cx], width, height, grid)) {
             tile& neighbor = grid[ny][nx];
 
             if (neighbor.type != TileType::EMPTY && 

@@ -6,6 +6,7 @@
 #include "player.hpp"
 #include "enemies/EnemyManager.hpp"
 #include "aStar.hpp" 
+#include <SFML/Audio.hpp>
 #include <vector>
 
 class playState : public gameState {
@@ -20,7 +21,7 @@ private:
     Player player;
     TileMap map;
     sf::Texture playerGoldTexture, ogreTexture, darkElfTexture, harpyTexture, mercenaryTexture;
-    sf::Texture archerTowerTexture, archMageTowerTexture, mageTowerTexture;
+    sf::Texture archerTowerTexture, archMageTowerTexture, mageTowerTexture, castleTexture;
     animateSprite goldAnimated, archerTowerAnimated, mageTowerAnimated, archMageTowerAnimated;
     EnemyManager enemyManager;
     std::vector<sf::Vector2i> wavePath;
@@ -28,8 +29,12 @@ private:
     std::vector<std::pair<int, int>> path;
     bool pathPrinted = false;
     sf::Font fontP;
-    sf::Text textGold, textArcherTower, textArchMageTower, textMageTower;
+    sf::Text textArcherTower, textArchMageTower, textMageTower;
+    sf::Text textGold, upgradeTextArcherTower, upgradeTextArchMageTower, upgradeTextMageTower;
     sf::RectangleShape archerTowerButton, mageTowerButton, archMageTowerButton;
+    sf::RectangleShape upgradeArcherButton, upgradeMageButton, upgradeArchMageButton;
+    sf::SoundBuffer bgBuffer;
+    std::unique_ptr<sf::Sound> bgTheme;
 
     bool waveStarted = false;
     int currentWave = 0;
