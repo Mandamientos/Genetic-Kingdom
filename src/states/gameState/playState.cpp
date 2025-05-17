@@ -13,7 +13,7 @@ std::vector<EnemyGenome> generateRandomGenomes(int cantidad, EnemyType typeFijo)
         float health = 150.f + static_cast<float>(rand() % 200);
         float speed = 20.f + static_cast<float>(rand() % 2);
         float resistArrow = 0.2f * static_cast<float>(rand() % 2); 
-        float resistMagic = 0.2f * static_cast<float>(rand() % 2;
+        float resistMagic = 0.2f * static_cast<float>(rand() % 2);
         float resistArtillery = 0.2f * static_cast<float>(rand() % 2);
 
         genomes.emplace_back(health, speed, resistArrow, resistMagic, resistArtillery, typeFijo);
